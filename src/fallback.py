@@ -11,13 +11,15 @@ from src.core import normalize, tokenize, label_from_score, clamp_unit
 POS_WORDS = {
     "love", "great", "amazing", "excellent", "fantastic",
     "wonderful", "awesome", "happy", "best", "enjoyed",
-    "recommend", "perfect", "brilliant", "outstanding"
+    "recommend", "perfect", "brilliant", "outstanding",
+    "good", "nice", "fine", "super", "beautiful"
 }
 
 NEG_WORDS = {
     "hate", "terrible", "awful", "horrible", "worst",
     "bad", "disappointed", "garbage", "waste", "broken",
-    "frustrated", "upset", "never", "poor", "useless"
+    "frustrated", "upset", "never", "poor", "useless",
+    "worst", "disgusting", "pathetic"
 }
 
 # Negators flip sentiment
@@ -90,9 +92,9 @@ def analyze_fallback_score(text: str) -> float:
         
         # Score word
         if word in POS_WORDS:
-            word_score = 1.0
+            word_score = 0.7
         elif word in NEG_WORDS:
-            word_score = -1.0
+            word_score = -0.7
         else:
             word_score = 0.0
         
@@ -102,7 +104,7 @@ def analyze_fallback_score(text: str) -> float:
             negation_active = False  # Reset after applying
         
         if booster_active:
-            word_score *= 1.5
+            word_score *= 1.8
             booster_active = False
         
         if dampener_active:
@@ -125,8 +127,12 @@ def analyze_fallback_score(text: str) -> float:
             score -= 0.3
     
     # Normalize by length (avoid long text domination)
+    # Use gentler normalization for short texts
     if len(tokens) > 0:
-        score = score / (len(tokens) ** 0.5)
+        if len(tokens) <= 3:
+            score = score / max(1.0, len(tokens) * 0.6)
+        else:
+            score = score / (len(tokens) ** 0.5)
     
     return clamp_unit(score)
 
