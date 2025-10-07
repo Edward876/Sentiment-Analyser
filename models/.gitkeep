@@ -1,0 +1,7 @@
+# Model artifacts directory
+
+This directory will contain trained models after running `make train`.
+
+Default artifact: `sentiment.joblib`
+
+The model file is gitignored and generated during setup.
